@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò chơi Cược A/B Hiện Đại</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS Reset & Cơ bản --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f0f2f5; /* Nền xám nhạt */
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            color: #333;
+        }
+
+        /* --- Style cho Thẻ Card chính --- */
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Đổ bóng mịn */
+            width: 100%; 
+            max-width: 420px; 
+            text-align: center; 
+            transition: transform 0.3s ease;
+        }
+        .card:hover { transform: translateY(-5px); /* Hiệu ứng nổi lên khi hover */ }
+
+        h1 { color: #1a73e8; margin-bottom: 10px; font-weight: 700; font-size: 28px; }
+        h2 { font-size: 18px; color: #5f6368; margin-bottom: 25px; font-weight: 500; }
+
+        /* --- Style cho phần Cách chơi --- */
+        .rules { 
+            background: #e8f0fe; /* Nền xanh dương nhạt */
+            padding: 15px; 
+            border-radius: 12px; 
+            text-align: left; 
+            margin-bottom: 25px; 
+            border-left: 5px solid #1a73e8; /* Thanh màu bên trái */
+        }
+        .rules h3 { margin-top: 0; font-size: 16px; font-weight: 600; color: #1a73e8; }
+        .rules ul { margin: 8px 0 0 0; padding-left: 20px; font-size: 14px; color: #444; line-height: 1.5; }
+
+        /* --- Style cho các Nút Chọn A/B --- */
+        .options { display: flex; gap: 15px; margin: 20px 0; }
+        .opt { 
+            flex: 1; 
+            padding: 20px; 
+            border: 2px solid #dadce0; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            position: relative; 
+            background-color: #f8f9fa;
+        }
+        .opt:hover { border-color: #1a73e8; background-color: #e8f0fe; }
+        
+        .opt-letter { font-size: 32px; font-weight: 700; color: #5f6368; transition: color 0.3s ease; }
+        .opt small { color: #80868b; display: block; margin-top: 5px; font-size: 13px; }
+        
+        /* Style khi một phương án được chọn */
+        .opt.selected { 
+            border-color: #1a73e8; 
+            background-color: #e8f0fe; 
+            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.2); 
+            transform: scale(1.03); 
+        }
+        .opt.selected .opt-letter { color: #1a73e8; }
+        .opt.selected small { color: #1967d2; }
+
+        /* Style riêng khi chọn A (màu đỏ) và B (màu xanh lá) */
+        .opt-a.selected { border-color: #d93025; background-color: #fce8e6; }
+        .opt-a.selected .opt-letter { color: #d93025; }
+        .opt-a.selected small { color: #a50e0e; }
+        
+        .opt-b.selected { border-color: #188038; background-color: #e6f4ea; }
+        .opt-b.selected .opt-letter { color: #188038; }
+        .opt-b.selected small { color: #0d652d; }
+
+        .divider { height: 1px; background: #dadce0; margin: 25px 0; }
+        
+        /* --- Style cho phần Nhập tiền --- */
+        .ratio-section { margin-bottom: 25px; }
+        .ratio-label { font-size: 16px; color: #202124; min-height: 24px; font-weight: 500; margin-bottom: 12px; }
+        .highlight-text { color: #1a73e8; font-weight: 600; }
+
+        .ratio-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .ratio-input { 
+            width: 100%; 
+            max-width: 200px; 
+            padding: 12px 15px; 
+            border: 2px solid #dadce0; 
+            border-radius: 10px; 
+            font-size: 18px; 
+            text-align: center; 
+            outline: none; 
+            transition: border-color 0.3s ease; 
+        }
+        .ratio-input:focus { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); }
+        .currency { font-weight: 600; font-size: 18px; color: #5f6368; }
+
+        /* --- Style cho Nút Xác nhận --- */
+        .submit-btn { 
+            width: 100%; 
+            padding: 16px; 
+            background: #1a73e8; /* Xanh dương đậm */
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 6px rgba(26, 115, 232, 0.1);
+        }
+        .submit-btn:hover:not(:disabled) { background: #1557b0; box-shadow: 0 6px 8px rgba(26, 115, 232, 0.2); }
+        .submit-btn:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 2px 4px rgba(26, 115, 232, 0.2); }
+        .submit-btn:disabled { background: #dadce0; color: #80868b; cursor: not-allowed; box-shadow: none; }
+        
+        /* --- Style cho phần Kết quả --- */
+        .result-box { margin-top: 25px; padding: 15px; border-radius: 10px; min-height: 50px; display: none; transition: all 0.5s ease; }
+        .result-box.show { display: block; animation: fadeIn 0.5s ease; }
+        
+        .result-text { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .result-details { font-size: 14px; color: #5f6368; }
+        
+        .win-box { background-color: #e6f4ea; border: 1px solid #188038; color: #188038; }
+        .lose-box { background-color: #fce8e6; border: 1px solid #d93025; color: #d93025; }
+        
+        .reset-link { display: inline-block; margin-top: 15px; color: #1a73e8; cursor: pointer; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .reset-link:hover { text-decoration: underline; }
+
+        /* Hiệu ứng hiện hình */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Trò chơi Cược</h1>
+    
+    <div class="rules">
+        <h3>Cách chơi:</h3>
+        <ul>
+            <li><strong>Chọn A:</strong> Kết quả từ <strong>3 đến 10</strong></li>
+            <li><strong>Chọn B:</strong> Kết quả từ <strong>11 đến 18</strong></li>
+        </ul>
+    </div>
+
+    <h2>Chọn A hay B?</h2>
+
+    <div class="options">
+        <div class="opt opt-a" id="opt-a" onclick="choose('A')">
+            <div class="opt-letter">A</div>
+            <small>3 - 10</small>
+        </div>
+        <div class="opt opt-b" id="opt-b" onclick="choose('B')">
+            <div class="opt-letter">B</div>
+            <small>11 - 18</small>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="ratio-section">
+        <p class="ratio-label" id="display-text">Số tiền đặt cược bạn chọn</p>
+        <div class="ratio-row">
+            <input class="ratio-input" type="number" id="ratio" min="1" placeholder="Nhập số tiền..." oninput="onRatioChange()">
+            <span class="currency">Đ</span>
+        </div>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitBet()" disabled>Xác nhận đặt cược</button>
+
+    <div id="result-box" class="result-box"></div>
+    <span class="reset-link" id="reset-link" style="display:none" onclick="resetGame()">Chơi lại ván mới</span>
+</div>
+
+<script>
+    let selectedOption = null;
+
+    function choose(option) {
+        selectedOption = option;
+        // Xóa class selected cũ
+        document.getElementById('opt-a').classList.remove('selected');
+        document.getElementById('opt-b').classList.remove('selected');
+        
+        // Thêm class selected cho nút vừa bấm
+        document.getElementById('opt-' + option.toLowerCase()).classList.add('selected');
+        
+        checkReady();
+    }
+
+    function onRatioChange() {
+        const input = document.getElementById('ratio');
+        const displayText = document.getElementById('display-text');
+        
+        if (input.value > 0) {
+            // Cập nhật dòng chữ thông minh và định dạng số
+            const formattedInput = Number(input.value).toLocaleString('vi-VN');
+            displayText.innerHTML = `Bạn sẽ đặt cược số tiền <span class="highlight-text">${formattedInput}</span> Đ`;
+        } else {
+            displayText.innerText = "Số tiền đặt cược bạn chọn";
+        }
+        
+        checkReady();
+    }
+
+    function checkReady() {
+        const input = document.getElementById('ratio');
+        const btn = document.getElementById('submit-btn');
+        // Chỉ cho bấm xác nhận nếu đã chọn A/B và đã nhập tiền > 0
+        btn.disabled = !(selectedOption && input.value > 0);
+    }
+
+    function submitBet() {
+        const input = document.getElementById('ratio');
+        const resultBox = document.getElementById('result-box');
+        const resetLink = document.getElementById('reset-link');
+        const btn = document.getElementById('submit-btn');
+        const amount = Number(input.value);
+        
+        // Khóa các nút để tránh bấm nhiều lần
+        btn.disabled = true;
+        input.disabled = true;
+        document.getElementById('opt-a').style.pointerEvents = 'none';
+        document.getElementById('opt-b').style.pointerEvents = 'none';
+
+        // Hiện trạng thái đang xử lý
+        resultBox.innerHTML = '<div class="result-text">🎲 Đang lắc xúc xắc...</div>';
+        resultBox.className = 'result-box show';
+        resetLink.style.display = 'none';
+
+        // Giả lập thời gian lắc xúc xắc (1.5 giây)
+        setTimeout(() => {
+            // Giả lập quay số ngẫu nhiên từ 3 đến 18 (tổng 3 con xúc xắc)
+            const diceResult = Math.floor(Math.random() * (18 - 3 + 1)) + 3;
+            let isWin = false;
+
+            // Kiểm tra kết quả
+            if (selectedOption === 'A' && diceResult >= 3 && diceResult <= 10) isWin = true;
+            if (selectedOption === 'B' && diceResult >= 11 && diceResult <= 18) isWin = true;
+
+            const formattedAmount = amount.toLocaleString('vi-VN');
+            const winAmount = isWin ? (amount * 2).toLocaleString('vi-VN') : 0; // Giả sử thắng x2
+
+            // Hiển thị kết quả đẹp mắt
+            if (isWin) {
+                resultBox.className = 'result-box show win-box';
+                resultBox.innerHTML = `
+                    <div class="result-text">🎉 BẠN THẮNG!</div>
+                    <div class="result-details">
+                        Kết quả là <strong>${diceResult}</strong>. 
+                        Bạn nhận được <strong>${winAmount} Đ</strong>.
+                    </div>
+                `;
+            } else {
+                resultBox.className = 'result-box show lose-box';
+                resultBox.innerHTML = `
+                    <div class="result-text">😢 BẠN THUA!</div>
+                    <div class="result-details">
+                        Kết quả là <strong>${diceResult}</strong>. 
+                        Bạn mất <strong>${formattedAmount} Đ</strong>.
+                    </div>
+                `;
+            }
+            
+            // Hiện nút chơi lại
+            resetLink.style.display = 'inline-block';
+        }, 1500);
+    }
+
+    function resetGame() {
+        selectedOption = null;
+        const input = document.getElementById('ratio');
+        const resultBox = document.getElementById('result-box');
+        const btn = document.getElementById('submit-btn');
+
+        // Reset các class và trạng thái
+        document.getElementById('opt-a').classList.remove('selected');
+        document.getElementById('opt-b').classList.remove('selected');
+        document.getElementById('opt-a').style.pointerEvents = 'auto';
+        document.getElementById('opt-b').style.pointerEvents = 'auto';
+        
+        input.disabled = false;
+        input.value = '';
+        document.getElementById('display-text').innerText = "Số tiền đặt cược bạn chọn";
+        
+        resultBox.className = 'result-box'; // Ẩn kết quả
+        resultBox.innerHTML = '';
+        
+        document.getElementById('reset-link').style.display = 'none';
+        btn.disabled = true;
+    }
+</script>
+
+</body>
+</html>
